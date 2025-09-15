@@ -5,44 +5,51 @@ import json
 api_key = "eb7618230a6a444f89b170521251509"
 cidade = "São Paulo"
 
-# URL base correta
-url = "https://api.weatherapi.com/v1/current.json"
+url = "https://api.weatherapi.com/v1/forecast.json"
 
-# Parâmetros da requisição
+
 parametros = {
     "key": api_key,
     "q": cidade,
-    "lang": "pt"  # Define a língua da resposta como português
+    "lang": "pt",   # resposta em português
+    "days": 7       # previsão de 7 dias
 }
 
-# Faz a requisição
 resposta = requests.get(url, params=parametros)
 
-# Verifica se a requisição foi bem-sucedida (status code 200)
 if resposta.status_code == 200:
-    dados = resposta.json()  # Converte a resposta JSON em um dicionário Python
-    temperatura = dados["current"]["temp_c"]
-    descricao = dados["current"]["condition"]["text"]
+    dados = resposta.json()
 
-    with open("tempo.json", "w", encoding="utf-8") as f:
+
+    with open("previsao.json", "w", encoding="utf-8") as f:
         json.dump(dados, f, ensure_ascii=False, indent=4)
 
-    # Mostra no Streamlit
     st.title("Previsão do tempo! 🌧")
     st.image("https://i.pinimg.com/originals/90/17/86/9017869dcc0a47f7c31016dc74b8cc01.gif")
 
-    st.markdown("### Descrição da API")
-    st.text("A API fornece dados de previsão do tempo em tempo real.")
+    ab1, ab2 = st.tabs(["Hoje", "Próximos dias"])
 
-    ab1, ab2 = st.tabs(["Previsão do tempo hoje","Previsão próximos dias"])
-
-    with ab1:
-        st.metric(label=f"Temperatura em {cidade}", value=f"{temperatura}°C")
-        st.write(f"**Céu:** {descricao}")
+    hoje = dados["forecast"]["forecastday"][0]
+    st.metric(label=f"Temperatura atual em {cidade}", value=f"{dados['current']['temp_c']}°C")
+    st.write(f"**Céu:** {dados['current']['condition']['text']}")
 
     with ab2:
-        pass
-
+        for dia in dados["forecast"]["forecastday"]:
+            data = dia["date"]
+            condicao = dia["day"]["condition"]["text"]
+            temp_max = dia["day"]["maxtemp_c"]
+            temp_min = dia["day"]["mintemp_c"]
+            if dia == 1:
+                data = "Hoje"
+                st.subheader(f"📅 {data}")
+                st.write(f"🌡️ Máx: {temp_max}°C | ❄️ Mín: {temp_min}°C")
+                st.write(f"☁️ Condição: {condicao}")
+                st.markdown("---")
+            else:
+                st.subheader(f"📅 {data}")
+                st.write(f"🌡️ Máx: {temp_max}°C | ❄️ Mín: {temp_min}°C")
+                st.write(f"☁️ Condição: {condicao}")
+                st.markdown("---")
 else:
     st.error(f"Deu ruim! Erro: {resposta.status_code}")
-    st.text(resposta.content)  
+    st.text(resposta.content)
