@@ -4,10 +4,13 @@ import json
 
 api_key = "eb7618230a6a444f89b170521251509"
 url = "https://api.weatherapi.com/v1/forecast.json"
+st.logo("https://i.pinimg.com/originals/90/17/86/9017869dcc0a47f7c31016dc74b8cc01.gif")
 
 st.title("Previsão do tempo! 🌧")
-st.image("https://i.pinimg.com/originals/90/17/86/9017869dcc0a47f7c31016dc74b8cc01.gif")
-cidade = st.text_input("Digite o nome da cidade que deseja ver o clima")
+st.markdown("Descrição Api whether")
+st.text("API de Weather é um serviço que fornece informações meteorológicas, como temperatura, umidade, previsão do tempo, vento, entre outros dados.")
+st.image("img/Nuvem.png")
+cidade = st.text_input("Digite o nome da cidade que deseja ver o clima")                        # Se estiver errado a temperatura: ou você digitou errado ou é problema da api (ex: alasca 31 graus célcius kkkkkk)!
 
 if cidade:
     parametros = {
@@ -19,7 +22,6 @@ if cidade:
     resposta = requests.get(url, params=parametros)
     if resposta.status_code == 200:
         dados = resposta.json()
-
 
         with open("previsao.json", "w", encoding="utf-8") as f:
             json.dump(dados, f, ensure_ascii=False, indent=4)
@@ -40,4 +42,3 @@ if cidade:
             st.write(f"🌡️ Máx: {temp_max}°C | ❄️ Mín: {temp_min}°C")
             st.write(f"☁️ Condição: {condicao}")
             st.markdown("---")
-
